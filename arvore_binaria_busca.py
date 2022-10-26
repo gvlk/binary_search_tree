@@ -6,15 +6,21 @@ class Tree:
 	def __init__(self, info: int):
 		self.rs: Tree
 		self.ls: Tree
-		self.h: int
 
 		self.info = info
 		self.rs = None
 		self.ls = None
-		self.h = 0
 
 	def __str__(self):
-		return str(self.info)
+		if self.ls:
+			li = self.ls.info
+		else:
+			li = '---'
+		if self.rs:
+			ri = self.rs.info
+		else:
+			ri = '---'
+		return f'{self.info} [{li} | {ri}]'
 
 	def insert(self, info: int):
 		if info > self.info:
@@ -34,10 +40,38 @@ class Tree:
 
 	def remove(self, info: int):
 		target = self.search(info)
-		if target is not None:
-			pass
+		parent, side = self.searchParent(target)
+		if target:
+			if target.ls is None and target.rs is None:
+				setattr(parent, side, None)
+			elif target.ls and not target.rs:
+				setattr(parent, side, target.ls)
+			elif target.rs and not target.ls:
+				setattr(parent, side, target.rs)
+			else:
+				aux = target.ls
+				while aux.rs:
+					aux = aux.rs
+				value = aux.info
+				self.remove(value)
+				target.info = value
 		else:
 			return None
+
+	def searchParent(self, nodo):
+		if nodo == self:
+			return None
+		else:
+			if nodo.info > self.info:
+				if nodo is self.rs:
+					return self, 'rs'
+				else:
+					return self.rs.searchParent(nodo)
+			else:
+				if nodo is self.ls:
+					return self, 'ls'
+				else:
+					return self.ls.searchParent(nodo)
 
 	def search(self, info: int):
 		if info == self.info:
@@ -53,18 +87,3 @@ class Tree:
 					return self.ls.search(info)
 				else:
 					return None
-
-
-teste = Tree(4)
-teste.insert(7)
-teste.insert(5)
-teste.insert(9)
-teste.insert(1)
-teste.insert(3)
-teste.insert(10)
-teste.insert(14)
-teste.insert(18)
-teste.insert(15)
-teste.insert(13)
-teste.remove(2)
-print(teste)
